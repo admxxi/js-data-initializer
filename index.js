@@ -35,10 +35,7 @@ export default class dataInitializer {
       ? String(type).toLowerCase()
       : dataTypeName.auto;
     this.debug = debug === true;
-
-    if (this.debug === true) {
-      console.log(name, this.newData, this.type);
-    }
+    this.name = name;
 
     this.validator = () => {
       return this.generic();
@@ -87,7 +84,9 @@ export default class dataInitializer {
         this.validator = this.validateString.bind(this);
     }
 
-    this.newData = this.validator();
+    if (this.debug === true) {
+      console.log(name, this.newData, this.type);
+    }
   }
 
   validateEnum() {
@@ -234,7 +233,6 @@ export default class dataInitializer {
       if (!isObject(this.generic())) {
         this.generic = () => new Object();
       }
-      // console.log(this.generic())
 
       if (isString(this.data)) {
         data = JSON.parse(data);
@@ -245,11 +243,12 @@ export default class dataInitializer {
       }
 
       for (let key in data) {
-        data[key] = clone(
+        data[key] = cloneDeep(
           new this.constructor(
             data[key],
             dataTypeName.auto,
-            this.generic()
+            this.generic(),
+            this.name + " child"
           ).validator()
         );
       }
@@ -267,7 +266,7 @@ export default class dataInitializer {
       console.log(this.data, this.type, this.generic());
     }
 
-    console.error(err);
+    console.error(err, this.data, this.type);
     return this.generic();
   }
 }
